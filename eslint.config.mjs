@@ -15,7 +15,9 @@ const eslintConfig = [
     files: ["**/*.{js,jsx,ts,tsx}"],
     rules: {
       "no-unused-vars": "warn",
-      "react/react-in-jsx-scope": "off", // Adjust rules as needed
+      "no-undef": "error",
+      "eqeqeq": ["error", "always"],
+      "no-debugger": "error",
     },
     ignores: ["node_modules/**"],
   },

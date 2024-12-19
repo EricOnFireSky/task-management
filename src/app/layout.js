@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
-import StoreProvider from "./StoreProvider"
+import StoreProvider from "../lib/redux/StoreProvider"
+import { Bounce, ToastContainer } from "react-toastify"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -22,6 +23,19 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <StoreProvider>{children}</StoreProvider>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick={false}
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          transition={Bounce}
+        />
       </body>
     </html>
   )

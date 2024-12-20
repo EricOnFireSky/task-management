@@ -10,7 +10,7 @@ export default function TaskStats({ tasks }) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <Card className="bg-blue-50 p-2">
         <div className="text-center">
           <p className="text-blue-600 text-sm font-medium">Total Tasks</p>

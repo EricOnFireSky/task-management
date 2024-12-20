@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit"
-import axios from "src/lib/utils/axios"
+import { tasksApi } from "src/lib/api/tasks"
 
 const initialState = {
   tasks: [],
@@ -7,36 +7,36 @@ const initialState = {
   error: null,
 }
 
-export const fetchTasks = createAsyncThunk("tasks/fetchTasks", async (_, { rejectWithValue }) => {
+export const fetchTasks = createAsyncThunk("task/fetchTasks", async (_, { rejectWithValue }) => {
   try {
-    const response = await axios.get("/api/tasks")
-    return response.data
+    const response = await tasksApi.getTasks()
+    return response
   } catch (error) {
     return rejectWithValue(error.response.data.message)
   }
 })
 
-export const createTask = createAsyncThunk("tasks/createTask", async (taskData, { rejectWithValue }) => {
+export const createTask = createAsyncThunk("task/createTask", async (taskData, { rejectWithValue }) => {
   try {
-    const response = await axios.post("/api/tasks", taskData)
-    return response.data
+    const response = await tasksApi.createTask(taskData)
+    return response
   } catch (error) {
     return rejectWithValue(error.response.data.message)
   }
 })
 
-export const updateTask = createAsyncThunk("tasks/updateTask", async ({ id, taskData }, { rejectWithValue }) => {
+export const updateTask = createAsyncThunk("task/updateTask", async ({ id, taskData }, { rejectWithValue }) => {
   try {
-    const response = await axios.put(`/api/tasks/${id}`, taskData)
-    return response.data
+    const response = await tasksApi.updateTask(id, taskData)
+    return response
   } catch (error) {
     return rejectWithValue(error.response.data.message)
   }
 })
 
-export const deleteTask = createAsyncThunk("tasks/deleteTask", async (id, { rejectWithValue }) => {
+export const deleteTask = createAsyncThunk("task/deleteTask", async (id, { rejectWithValue }) => {
   try {
-    await axios.delete(`/api/tasks/${id}`)
+    await tasksApi.deleteTask(id)
     return id
   } catch (error) {
     return rejectWithValue(error.response.data.message)

@@ -24,7 +24,7 @@ export default function TaskFilters({ filters, onFilterChange }) {
   ]
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <Input
         type="text"
         placeholder="Search tasks..."

@@ -1,23 +1,27 @@
-import axios from "axios"
-import { getStoredToken, removeStoredToken } from "./token"
+import axios from "axios";
+import { getStoredToken, removeStoredToken } from "../utils/token";
 
-axios.interceptors.request.use((config) => {
-  const token = getStoredToken()
+const axiosInstance = axios.create({
+  baseURL: "http://localhost:5000/api",
+});
+
+axiosInstance.interceptors.request.use((config) => {
+  const token = getStoredToken();
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+    config.headers.Authorization = `Bearer ${token}`;
   }
-  return config
-})
+  return config;
+});
 
-axios.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      removeStoredToken()
-      window.location.href = "/login"
+      removeStoredToken();
+      window.location.href = "/login";
     }
-    return Promise.reject(error)
+    return Promise.reject(error);
   }
-)
+);
 
-export default axios
+export default axiosInstance;

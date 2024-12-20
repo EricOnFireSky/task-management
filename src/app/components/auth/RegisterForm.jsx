@@ -36,11 +36,15 @@ export default function RegisterForm() {
   const onSubmit = async (data) => {
     try {
       setIsLoading(true)
-      await dispatch(registerUser(data)).unwrap()
-      toast("Account created successfully", {
-        type: "success",
-      })
-      router.push("/dashboard")
+      const response = await dispatch(registerUser(data)).unwrap()
+      console.log("onSubmit  response-->", response)
+
+      if (response?.message) {
+        toast(response?.message, {
+          type: "success",
+        })
+      }
+      router.push("/login")
     } catch (error) {
       toast(error.message || "Failed to create account", {
         type: "error",

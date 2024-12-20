@@ -10,11 +10,18 @@ import TaskForm from "../components/tasks/TaskForm"
 import TaskStats from "../components/dashboard/TaskStats"
 import { useAppDispatch, useAppSelector } from "src/lib/redux/hooks"
 import { fetchTasks } from "src/lib/redux/slice/tasks/task-slice"
-import { CirclePlus, LogOut } from "lucide-react"
+import { CirclePlus, LogOut, ChevronDown, ChevronUp, LayoutGrid, Table as TableIcon } from "lucide-react"
+
 import { logout } from "src/lib/redux/slice/auth/auth-slice"
 
 export default function Dashboard() {
+  const user = useAppSelector((state) => state.auth.user)
+  console.log("Dashboard  user-->", user)
+
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [showStats, setShowStats] = useState(true)
+  const [showFilters, setShowFilters] = useState(true)
+  const [viewMode, setViewMode] = useState("card") // 'card' or 'table'
   const [filters, setFilters] = useState({
     search: "",
     status: "",
@@ -39,7 +46,6 @@ export default function Dashboard() {
   const filteredAndSortedTasks = useMemo(() => {
     let result = [...tasks]
 
-    // Apply filters
     if (filters.search) {
       const searchLower = filters.search.toLowerCase()
       result = result.filter(
@@ -56,7 +62,6 @@ export default function Dashboard() {
       result = result.filter((task) => task.priority === filters.priority)
     }
 
-    // Apply sorting
     result.sort((a, b) => {
       switch (filters.sortBy) {
         case "dueDate":
@@ -96,9 +101,6 @@ export default function Dashboard() {
                 <div key={i} className="h-24 bg-white rounded-lg shadow-md" />
               ))}
             </div>
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-32 bg-white rounded-lg shadow-md" />
-            ))}
           </div>
         </div>
       </div>
@@ -116,39 +118,62 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">My Tasks</h1>
-            {overdueTasksCount > 0 && (
-              <p className="text-red-600 mt-1">
-                {overdueTasksCount} task{overdueTasksCount !== 1 ? "s" : ""} overdue
-              </p>
+    <div className="min-h-screen bg-gray-50">
+      <div className="sticky top-0 bg-gray-50 z-10 border-b border-gray-200 shadow-sm">
+        <div className="max-w-6xl mx-auto p-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">My Tasks</h1>
+              {overdueTasksCount > 0 && (
+                <p className="text-red-600 text-sm">
+                  {overdueTasksCount} task{overdueTasksCount !== 1 ? "s" : ""} overdue
+                </p>
+              )}
+            </div>
+
+            <div className="flex gap-2 items-center">
+              <Button
+                className="flex gap-2 items-center"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowStats(!showStats)}
+              >
+                Stats {showStats ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </Button>
+              <Button
+                className="flex gap-2 items-center"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                Filters {showFilters ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </Button>
+              <Button variant="secondary" size="sm" onClick={() => dispatch(logout())} title="Logout">
+                <LogOut size={16} className="mr-1" />
+              </Button>
+            </div>
+          </div>
+
+          <div className="space-y-2 mt-2">
+            {showStats && (
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <TaskStats tasks={tasks} />
+              </div>
+            )}
+
+            {showFilters && (
+              <div className="bg-white rounded-lg p-4 shadow-sm">
+                <TaskFilters filters={filters} onFilterChange={handleFilterChange} />
+              </div>
             )}
           </div>
-
-          <div className="flex gap-2 items-center">
-            <Button
-              onClick={() => {
-                dispatch(logout())
-              }}
-            >
-              <LogOut size="16" className="mr-1" /> Logout
-            </Button>
-            <Button onClick={() => setIsModalOpen(true)}>
-              <CirclePlus size="16" className="mr-1" /> Task
-            </Button>
-          </div>
         </div>
+      </div>
 
-        <TaskStats tasks={tasks} />
+      <div className="max-w-6xl mx-auto p-4">
+        <ViewToggle viewMode={viewMode} setViewMode={setViewMode} setIsModalOpen={setIsModalOpen} />
 
-        <TaskFilters filters={filters} onFilterChange={handleFilterChange} />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          <TaskList tasks={filteredAndSortedTasks} />
-        </div>
+        <TaskList tasks={filteredAndSortedTasks} viewMode={viewMode} />
 
         <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Task">
           <TaskForm onClose={() => setIsModalOpen(false)} />
@@ -157,3 +182,34 @@ export default function Dashboard() {
     </div>
   )
 }
+
+const ViewToggle = ({ viewMode, setViewMode, setIsModalOpen }) => (
+  <div className="flex mb-4 justify-between items-center">
+    <div className="flex gap-2">
+      <Button
+        variant={viewMode === "card" ? "default" : "outline"}
+        size="sm"
+        onClick={() => setViewMode("card")}
+        className="flex items-center gap-2"
+      >
+        <LayoutGrid className="w-4 h-4" />
+        Cards
+      </Button>
+      <Button
+        variant={viewMode === "table" ? "default" : "outline"}
+        size="sm"
+        onClick={() => setViewMode("table")}
+        className="flex items-center gap-2"
+      >
+        <TableIcon className="w-4 h-4" />
+        Table
+      </Button>
+    </div>
+
+    <div>
+      <Button size="sm" onClick={() => setIsModalOpen(true)}>
+        <CirclePlus size={16} className="mr-1" /> Task
+      </Button>
+    </div>
+  </div>
+)
